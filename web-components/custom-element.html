@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Custom element</title>
+
+    <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
+</head>
+<body>
+<script>
+    var HelloWorldComponentProto = Object.create(HTMLElement.prototype);
+
+    HelloWorldComponentProto.createdCallback = function () {
+        this.innerHTML = '<h3>Hello World</h3>';
+    };
+
+    var HelloWorldComponent = document.registerElement('helloworld-component', {
+        prototype: HelloWorldComponentProto
+    });
+
+</script>
+
+<!-- Вариант 1 -->
+<helloworld-component></helloworld-component>
+
+<script>
+    // Вариант 2
+    var component2 = new HelloWorldComponent();
+    document.body.appendChild(component2);
+
+    // Вариант 3
+    var component3 = document.createElement('helloworld-component');
+    document.body.appendChild(component3);
+
+    // Вариант 4
+    document.body.innerHTML += '<helloworld-component></helloworld-component>';
+</script>
+
+</body>
+</html>
