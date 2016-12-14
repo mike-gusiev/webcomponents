@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>CSS styles</title>
+    <style>
+        /* can access to nested templates */
+        my-list /deep/ li {
+            text-decoration: underline;
+        }
+
+
+        /*
+           Стили, заданные через такой селектор, не будут применены к элементам my-list,
+           так как содержимое my-list находиться в Shadow DOM
+        */
+        li {
+            font-weight: bold;
+        }
+
+        /*
+            При использовании псевдо класса ::shadow можно обратиться к элементам Shadow DOM
+        */
+        my-list::shadow li {
+            font-style: italic;
+        }
+
+        /*
+            h2 элемент размещенный в my-list относиться к light DOM. Этот элемент является Distributed Node
+            Так как через <content> элемент выводиться в составе шаблона.
+        */
+        h2 {
+            background-color: lightblue;
+        }
+    </style>
+</head>
+<body class="dark">
+
+<my-list></my-list>
+<my-list class="blue-theme"></my-list>
+
+<template id="list1">
+    <style>
+        /* component's elements */
+        :host ul {
+            color: red;
+        }
+        /* if component has such class */
+        :host(.blue-theme) ul {
+            color: blue;
+        }
+        :host(.green-theme) ul {
+            color: green;
+        }
+
+        /* component's state */
+        :host(:hover) li {
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        :host(:active) ul {
+            color: green;
+        }
+
+        /* if parent has such class */
+        :host-context(.dark) {
+            color: darkgray;
+        }
+
+        :host-context(.light) {
+            color: white;
+        }
+    </style>
+    <ul>
+        <li>Item 01</li>
+        <li>Item 02</li>
+        <li>Item 03</li>
+        <li>Item 04</li>
+        <li>Item 05</li>
+        <li>Item 06</li>
+        <li>Item 07</li>
+        <li>Item 08</li>
+    </ul>
+    <my-second-list></my-second-list>
+</template>
+
+<template id="list2">
+
+    <ul>
+        <li>Nested List Item 01</li>
+        <li>Nested List Item 02</li>
+        <li>Nested List Item 03</li>
+        <li>Nested List Item 04</li>
+        <li>Nested List Item 05</li>
+        <li>Nested List Item 06</li>
+        <li>Nested List Item 07</li>
+        <li>Nested List Item 08</li>
+    </ul>
+</template>
+
+<div id="host">
+    <h2>Title</h2>
+    <input type="text" />
+    <button>My Button</button>
+</div>
+
+<template id="list3">
+    <style>
+        /*
+            ::content псевдо класс позволяет оформить distributed nodes (элементы из light DOM, которые были
+            помещены в элемент <content>)
+        */
+        ::content button {
+            color: red;
+        }
+
+        ::content input {
+            border: 1px dotted black;
+        }
+    </style>
+    <content></content>
+</template>
+
+<script>
+    var MyListProto = Object.create(HTMLDivElement.prototype);
+    MyListProto.createdCallback = function () {
+        var root = this.createShadowRoot();
+        var template = document.querySelector("#list1");
+        root.appendChild(document.importNode(template.content, true));
+    };
+
+    document.registerElement("my-list", {
+        prototype: MyListProto
+    });
+
+    var MySecondListProto = Object.create(HTMLDivElement.prototype);
+    MySecondListProto.createdCallback = function () {
+        var root = this.createShadowRoot();
+        var template = document.querySelector("#list2");
+        root.appendChild(document.importNode(template.content, true));
+    };
+
+    document.registerElement("my-second-list", {
+        prototype: MySecondListProto
+    });
+
+    var host = document.querySelector("#host");
+    var root = host.createShadowRoot();
+    var template = document.querySelector("#list3");
+    root.appendChild(document.importNode(template.content, true));
+</script>
+</body>
+</html>
